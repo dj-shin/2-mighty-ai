@@ -2,10 +2,16 @@ import tensorflow as tf
 import numpy as np
 
 from select_policy import SelectPolicy
+from manifest_policy import ManifestPolicy
 
 
 NUM_CARDS = 53
 TURNS = 13
+
+
+def init_manifest():
+    # TODO: depends on the representation
+    return None
 
 
 def main():
@@ -26,6 +32,30 @@ def main():
             other_p.on_opponent_pick(pick)
 
     card_left = tf.slice(cards, [0, NUM_CARDS - 1], [batch_size, 1])
+
+    # election phase
+    manifest_model = None
+    prob_model = None
+    players_manifest = [ManifestPolicy(p.hand, p.prob, manifest_model, prob_model) for p in players_select]
+
+    state = init_manifest()
+    current_player = tf.constant(False, dtype=tf.bool)
+
+    def _proposed(state, _):
+        '''
+        return not (state is a give-up)
+        '''
+        return False
+
+    def _body(state, player):
+        next_state = tf.cond(
+            player,
+            lambda: players_manifest[0].propose(state),
+            lambda: players_manifest[1].propose(state))
+        next_player = tf.math.logical_not(player)
+        return (next_state, next_player)
+
+    manifesto, lord = tf.while_loop(_proposed, _body, loop_vars=[state, current_player])
 
 
 if __name__ == '__main__':
