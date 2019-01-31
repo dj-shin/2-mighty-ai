@@ -52,7 +52,7 @@ def main():
             player,
             lambda: players_manifest[0].propose(state),
             lambda: players_manifest[1].propose(state))
-        next_player = tf.math.logical_not(player)
+        next_player = tf.logical_not(player)
         return (next_state, next_player)
 
     manifesto, lord = tf.while_loop(_proposed, _body, loop_vars=[state, current_player])
