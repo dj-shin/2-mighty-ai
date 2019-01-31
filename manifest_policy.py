@@ -15,3 +15,10 @@ class ManifestPolicy(object):
 
     def _update_prob(self, history):
         self._prob = self._prob_model(self._prob, history)
+
+    def add_and_drop(self, card):
+        '''
+        winrate: (batch_size, *repr) -> (batch_size, 14, *repr)
+        discard = tf.argmin(winrate, axis=1)
+        self._hand = apply(self._hand, discard)
+        '''

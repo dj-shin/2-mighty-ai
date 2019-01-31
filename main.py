@@ -56,6 +56,10 @@ def main():
         return (next_state, next_player)
 
     manifesto, lord = tf.while_loop(_proposed, _body, loop_vars=[state, current_player])
+    tf.cond(
+        lord,
+        lambda: players_manifest[0].add_and_drop(card_left),
+        lambda: players_manifest[1].add_and_drop(card_left))
 
 
 if __name__ == '__main__':
